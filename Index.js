@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            花瓣工具（HuabanTool）
 // @description     花瓣（huaban.com）工具。包含功能：图片批量下载。
-// @version         1.3
+// @version         1.4
 // @author          WingsJ
 // @namespace       WingsJ
 // @match           huaban.com/*
@@ -19,11 +19,7 @@
      */
     let handler_domModified=function()
     {
-        let srcs=search();
-        for(let el of srcs)
-            urls.add(el);
-
-        console.log(urls);
+        search();
     };
     /**
      * @name 处理点击事件
@@ -48,8 +44,8 @@
     {
         let imgs=Array.from(document.querySelectorAll('img[src^="//img.hb.aicdn.com/"]'));
         let srcs=imgs.map((el)=>{return el.src.replace(/_fw236/g,'');});        //瀑布流中的预览图的后缀为 fw236 ，大图片的后缀为 fw658
-
-        return srcs;
+        for(let el of srcs)
+            urls.add(el);
     };
     /**
      * @name 显示结果
@@ -140,11 +136,10 @@
 
 /*构造*/
 
-    window.addEventListener('load',()=>
-    {
-        initiate();
-    });
+    initiate();
 
     let observer=new MutationObserver(handler_domModified);
-    observer.observe(document.querySelector('#waterfall'),{attributes:true,childList:true,subtree:true});
+    observer.observe(document.querySelector('#waterfall'),{childList:true,subtree:true,attributeFilter:['src']});
+
+    search();
 })();
