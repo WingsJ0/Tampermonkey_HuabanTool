@@ -1,16 +1,30 @@
 // ==UserScript==
-// @name         花瓣工具（HuabanTool）
-// @description 花瓣（huaban.com）工具。包含功能：图片批量下载。
-// @version      1.2
-// @author       WingsJ
-// @namespace WingsJ
-// @match        huaban.com/*
+// @name            花瓣工具（HuabanTool）
+// @description     花瓣（huaban.com）工具。包含功能：图片批量下载。
+// @version         1.3
+// @author          WingsJ
+// @namespace       WingsJ
+// @match           huaban.com/*
 // ==/UserScript==
 
 (function()
 {'use strict';
 /*成员*/
 
+    const urls=new Set();
+
+    /**
+     * @name 事件处理_dom变化
+     * @type Function
+     */
+    let handler_domModified=function()
+    {
+        let srcs=search();
+        for(let el of srcs)
+            urls.add(el);
+
+        console.log(urls);
+    };
     /**
      * @name 处理点击事件
      * @type Function
@@ -21,10 +35,7 @@
         switch(type)
         {
             case 'ExtractImageUrl':
-            {
-                let result=search();
-                showResult(result);
-            }
+                showResult();
             break;
         }
     };
@@ -35,9 +46,8 @@
      */
     let search=function()
     {
-        let imgs=Array.from(document.querySelectorAll('a.img.x.layer-view.loaded img'));
+        let imgs=Array.from(document.querySelectorAll('img[src^="//img.hb.aicdn.com/"]'));
         let srcs=imgs.map((el)=>{return el.src.replace(/_fw236/g,'');});        //瀑布流中的预览图的后缀为 fw236 ，大图片的后缀为 fw658
-        srcs=new Set(srcs.filter((value)=>{return value.match(/^(http:\/\/img.hb.aicdn.com\/)/) !==null;}));        //过滤非 http:\\img.hb.aicdn.com\ 开头的地址并去重
 
         return srcs;
     };
@@ -45,11 +55,11 @@
      * @name 显示结果
      * @type Function
      */
-    let showResult=function(result)
+    let showResult=function()
     {
         let resultPage=window.open('','','');
         resultPage.document.open('text/html','replace');
-        for(let value of result.values())
+        for(let value of urls.values())
         {
             resultPage.document.writeln(value);
             resultPage.document.write('<br/>');
@@ -116,7 +126,7 @@
       
         let menu=document.createElement('div');
         menu.className='HuabanTool_menu';
-        menu.innerHTML=`<p class='HuabanTool_title'>花瓣工具</p>`;
+        menu.innerHTML='<p class="HuabanTool_title">花瓣工具</p>';
         menu.addEventListener('click',handler_click);
 
         let button_extractImageUrl=document.createElement('p');
@@ -134,4 +144,7 @@
     {
         initiate();
     });
+
+    let observer=new MutationObserver(handler_domModified);
+    observer.observe(document.querySelector('#waterfall'),{attributes:true,childList:true,subtree:true});
 })();
