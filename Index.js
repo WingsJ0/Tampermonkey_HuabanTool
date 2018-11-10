@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         HuabanTool
+// @name         花瓣工具（HuabanTool）
 // @description 花瓣（huaban.com）工具。包含功能：图片批量下载。
 // @version      1.2
 // @author       WingsJ
